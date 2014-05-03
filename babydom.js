@@ -1,5 +1,5 @@
 /*!
- * babydom v0.0.0, https://github.com/hoho/babydom
+ * babydom v0.0.1, https://github.com/hoho/babydom
  * (c) 2014 Marat Abdullin, MIT license
  */
 var $B = (function(document, undefined) {
@@ -51,6 +51,53 @@ var $B = (function(document, undefined) {
     }
 
 
+    function classToObject(val) {
+        var ret = {},
+            i,
+            cls;
+
+        val = (val || '').split(whitespace);
+
+        for (i = 0; i < val.length; i++) {
+            if ((cls = val[i])) {
+                ret[cls] = 1; // `1` is shorter than `true` and we need just keys.
+            }
+        }
+
+        return ret;
+    }
+
+
+    function modifyClass(self, val, addOrRemove, force) {
+        var obj1 = classToObject(self.attr('class')),
+            obj2 = classToObject(val),
+            cls;
+
+        if (force !== undefined) { force = !!force; }
+
+        for (cls in obj2) {
+            if (addOrRemove === true || force === true) {
+                // Add class or toggle true.
+                obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
+            } else if (addOrRemove === false || force === false) {
+                // Remove class or toggle false.
+                delete obj1[cls];
+            } else {
+                // Toggle class.
+                if (cls in obj1) {
+                    delete obj1[cls];
+                } else {
+                    obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
+                }
+            }
+        }
+
+        self.attr('class', Object.keys(obj1).join(' ') || null);
+
+        return self;
+    }
+
+
     proto.attr = function(name, val) {
         var node = this._n,
             key,
@@ -87,6 +134,25 @@ var $B = (function(document, undefined) {
             }
             return this;
         }
+    };
+
+
+    proto.emit = function(event, detail) {
+        var node = this._n,
+            e;
+
+        if ((event in emitByMethodCall) && node[event]) {
+            node[event]();
+        } else {
+            // TODO: It would probably be needed to distinguish event types.
+            //       For now we're not trying to follow standards much.
+            e = document.createEvent('HTMLEvents');
+            e.initEvent(event, true, false);
+            if (detail) { e.detail = detail; }
+            node.dispatchEvent(e);
+        }
+
+        return this;
     };
 
 
@@ -179,22 +245,23 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.emit = function(event, detail) {
-        var node = this._n,
-            e;
+    proto.addClass = function(val) {
+        return modifyClass(this, val, true);
+    };
 
-        if ((event in emitByMethodCall) && node[event]) {
-            node[event]();
-        } else {
-            // TODO: It would probably be needed to distinguish event types.
-            //       For now we're not trying to follow standards much.
-            e = document.createEvent('HTMLEvents');
-            e.initEvent(event, true, false);
-            if (detail) { e.detail = detail; }
-            node.dispatchEvent(e);
-        }
 
-        return this;
+    proto.removeClass = function(val) {
+        return modifyClass(this, val, false);
+    };
+
+
+    proto.toggleClass = function(val, force) {
+        return modifyClass(this, val, undefined, force);
+    };
+
+
+    proto.hasClass = function(val) {
+        return val in classToObject(this.attr('class'));
     };
 
 

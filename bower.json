@@ -1,6 +1,6 @@
 {
     "name": "babydom",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "homepage": "https://github.com/hoho/babydom",
     "authors": [
         "Marat Abdullin <dakota@brokenpipe.ru>"
@@ -19,6 +19,6 @@
         "*.md",
         "package.json",
         "bower.json",
-        "Gruntfile.js"
+        "gulpfile.js"
     ]
 }

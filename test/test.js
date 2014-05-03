@@ -204,3 +204,50 @@ test('babydom events test', function() {
         .emit('my-event', 100500);
     deepEqual(ret, []);
 });
+
+
+test('babydom class test', function() {
+    var container = document.getElementById('container');
+
+    $B(container)
+        .addClass('a b c')
+        .addClass('b d c')
+        .addClass(' e a f ');
+    deepEqual($B(container).attr('class'), 'a b c d e f');
+
+    $B(container)
+        .removeClass('a b')
+        .removeClass(' d f ');
+    deepEqual($B(container).attr('class'), 'c e');
+
+    $B(container)
+        .attr('class', 'a b c d e f')
+        .toggleClass('a c d f g h');
+    deepEqual($B(container).attr('class'), 'b e g h');
+
+    $B(container)
+        .attr('class', 'a b c d e f')
+        .toggleClass('a c d f g h', true);
+    deepEqual($B(container).attr('class'), 'a b c d e f g h');
+
+    $B(container)
+        .attr('class', 'a b c d e f')
+        .toggleClass('a c d f g h', {some: 123});
+    deepEqual($B(container).attr('class'), 'a b c d e f g h');
+
+    $B(container)
+        .attr('class', 'a b c d e f')
+        .toggleClass('a c d f g h', false);
+    deepEqual($B(container).attr('class'), 'b e');
+
+    $B(container)
+        .attr('class', 'a b c d e f')
+        .toggleClass('a c d f g h', 0);
+    deepEqual($B(container).attr('class'), 'b e');
+    deepEqual($B(container).hasClass('b'), true);
+    deepEqual($B(container).hasClass('e'), true);
+    deepEqual($B(container).hasClass('f'), false);
+
+    $B(container).toggleClass('e b');
+    deepEqual($B(container).attr('class'), null);
+});
