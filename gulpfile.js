@@ -1,6 +1,8 @@
+'use strict';
+
 var gulp = require('gulp');
 
-var jshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var qunit = require('gulp-qunit');
@@ -8,8 +10,18 @@ var qunit = require('gulp-qunit');
 
 gulp.task('jshint', function() {
     return gulp.src(['gulpfile.js', 'babydom.js'])
-        .pipe(jshint())
-        .pipe(jshint.reporter('default'));
+        .pipe(eslint({
+            rules: {
+                'quotes': [2, 'single'],
+                'no-shadow-restricted-names': 0,
+                'no-underscore-dangle': 0
+            },
+            env: {
+                'node': true,
+                'browser': true
+            }
+        }))
+        .pipe(eslint.format());
 });
 
 gulp.task('uglify', function() {
