@@ -10,9 +10,9 @@ var $B = (function(document, undefined) {
     }
 
     var proto = API.prototype,
-        properties = {checked: true, style: true},
-        captureEvents = {focus: true, blur: true},
-        emitByMethodCall = {focus: true, blur: true, reset: true},
+        properties = {checked: false, style: null, value: ''},
+        captureEvents = {focus: 1, blur: 1},
+        emitByMethodCall = {focus: 1, blur: 1, reset: 1},
         eventHandlers = {},
         whitespace = /[\x20\t\r\n\f]+/;
 
@@ -120,10 +120,10 @@ var $B = (function(document, undefined) {
                     }
 
                     if (val !== undefined) {
-                        node.style.cssText = val;
+                        node.style.cssText = val || null;
                     }
                 } else {
-                    node[name] = val;
+                    node[name] = val === null ? properties[name] : val;
                 }
             } else {
                 if (val === null) {

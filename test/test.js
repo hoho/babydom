@@ -84,7 +84,7 @@ test('babydom attr test', function() {
             null,
             null,
             false,
-            null
+            ''
         ]
     );
     styleEqual($B(input).attr('style'), 'color: green;');
