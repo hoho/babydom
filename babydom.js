@@ -40,7 +40,7 @@ var $B = (function(document, undefined) {
 
         while (node) {
             if ((($b = node.$b)) && ((h = $b[e.type]))) {
-                for (i = 0; i < h.length; i++) {
+                for (i = h.length; i--;) {
                     h[i].call(node, e);
                     if (next & 2) { return; }
                 }
@@ -141,7 +141,7 @@ var $B = (function(document, undefined) {
             if (event.length === 1) {
                 event += '';
 
-                if (handler && ((handlers = $b[event]))) {
+                if (((handlers = $b[event])) && handler) {
                     i = 0;
                     while (i < handlers.length) {
                         if (handlers[i] === handler) {
@@ -152,7 +152,7 @@ var $B = (function(document, undefined) {
                     }
                 }
 
-                if (handlers && !handlers.length) {
+                if (handlers && (!handlers.length || !handler)) {
                     delete $b[event];
                 }
             } else {
@@ -179,15 +179,18 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.emit = function(event) {
+    proto.emit = function(event, detail) {
         var node = this._n,
             e;
 
         if ((event in emitByMethodCall) && node[event]) {
             node[event]();
         } else {
+            // TODO: It would probably be needed to distinguish event types.
+            //       For now we're not trying to follow standards much.
             e = document.createEvent('HTMLEvents');
             e.initEvent(event, true, false);
+            if (detail) { e.detail = detail; }
             node.dispatchEvent(e);
         }
 
