@@ -10,9 +10,9 @@ var $B = (function(document, undefined) {
     }
 
     var proto = API.prototype,
-        properties = {checked: true},
+        properties = {checked: true, style: true},
         captureEvents = {focus: true, blur: true},
-        triggerByMethodCall = {focus: true, blur: true, reset: true},
+        emitByMethodCall = {focus: true, blur: true, reset: true},
         eventHandlers = {},
         whitespace = /[\x20\t\r\n\f]+/;
 
@@ -52,15 +52,38 @@ var $B = (function(document, undefined) {
 
 
     proto.attr = function(name, val) {
-        var node = this._n;
+        var node = this._n,
+            key,
+            ret;
 
         if (val === undefined) {
-            return name in properties ? node[name] : node.getAttribute(name);
+            return name in properties ?
+                (name === 'style' ? node.style.cssText : node[name])
+                :
+                node.getAttribute(name);
         } else {
             if (name in properties) {
-                node[name] = val;
+                if (name === 'style') {
+                    if (typeof val === 'object') {
+                        ret = [];
+                        for (key in val) {
+                            ret.push(key + ': ' + val[key]);
+                        }
+                        val = ret.join('; ');
+                    }
+
+                    if (val !== undefined) {
+                        node.style.cssText = val;
+                    }
+                } else {
+                    node[name] = val;
+                }
             } else {
-                node.setAttribute(name, val);
+                if (val === null) {
+                    node.removeAttribute(name);
+                } else {
+                    node.setAttribute(name, val);
+                }
             }
             return this;
         }
@@ -156,11 +179,11 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.trigger = function(event) {
+    proto.emit = function(event) {
         var node = this._n,
             e;
 
-        if ((event in triggerByMethodCall) && node[event]) {
+        if ((event in emitByMethodCall) && node[event]) {
             node[event]();
         } else {
             e = document.createEvent('HTMLEvents');
