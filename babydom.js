@@ -238,8 +238,7 @@ var $B = (function(document, undefined) {
         if (val === undefined) {
             return node.textContent;
         } else {
-            node.innerHTML = '';
-            node.appendChild(document.createTextNode(val));
+            node.textContent = val;
             return this;
         }
     };
