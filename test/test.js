@@ -102,7 +102,7 @@ test('babydom attr test', function() {
 test('babydom text test', function() {
     var container = document.getElementById('container');
 
-    $B(container).text('Hello <world> &nbsp;!');
+    $B(container).text('Piu').text('Hello <world> &nbsp;!');
     deepEqual($B(container).text(), 'Hello <world> &nbsp;!');
 
     container.innerHTML = 'Hello <world>beautiful</world> &nbsp;!';
