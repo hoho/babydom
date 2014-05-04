@@ -234,10 +234,13 @@ var $B = (function(document, undefined) {
 
     proto.text = function(val) {
         var node = this._n;
-        return val === undefined ?
-            node.textContent
-            :
-            ((node.textContent = val), this); // Intentionally use comma expression here.
+
+        if (val === undefined) {
+            return node.textContent;
+        } else {
+            node.textContent = val;
+            return this;
+        }
     };
 
 
