@@ -17,6 +17,19 @@ var $B = (function(document, undefined) {
         whitespace = /[\x20\t\r\n\f]+/;
 
 
+    function select(selector, context) {
+        context = context || document;
+
+        return /:first$/.test(selector) ?
+            (context = context.querySelector(selector.slice(0, -6))) ?
+                [context]
+                :
+                []
+            :
+            Array.prototype.slice.call(context.querySelectorAll(selector));
+    }
+
+
     function eventHandler(e) {
         var node,
             $b,
