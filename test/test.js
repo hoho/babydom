@@ -251,3 +251,20 @@ test('babydom class test', function() {
     $B(container).toggleClass('e b');
     deepEqual($B(container).attr('class'), null);
 });
+
+
+test('babydom selector test', function() {
+    var ret = $B('#container');
+
+    deepEqual(ret.length, 1);
+    deepEqual(tag(ret[0]), 'div');
+
+    ret = $B('body > div, head > script');
+    deepEqual(ret.length, 4);
+    deepEqual(tag(ret[0]), 'script');
+    deepEqual(tag(ret[1]), 'script');
+    deepEqual(tag(ret[2]), 'div');
+    deepEqual(tag(ret[3]), 'div');
+
+    ret.attr('test', 'ololo');
+});

@@ -5,18 +5,6 @@
 var $B = (function(document, undefined) {
     'use strict';
 
-    function API(node) {
-        this._n = node;
-    }
-
-    var proto = API.prototype,
-        properties = {checked: false, style: null, value: ''},
-        captureEvents = {focus: 1, blur: 1},
-        emitByMethodCall = {focus: 1, blur: 1, reset: 1},
-        eventHandlers = {},
-        whitespace = /[\x20\t\r\n\f]+/;
-
-
     function select(selector, context) {
         context = context || document;
 
@@ -28,6 +16,25 @@ var $B = (function(document, undefined) {
             :
             Array.prototype.slice.call(context.querySelectorAll(selector));
     }
+
+
+    function API(nodeOrSelector, context) {
+        var nodes = nodeOrSelector instanceof Node ? [nodeOrSelector] : select(nodeOrSelector, context),
+            i;
+
+        for (i = 0; i < nodes.length; i++) {
+            this[i] = nodes[i];
+        }
+
+        this.length = nodes.length;
+    }
+
+    var proto = API.prototype,
+        properties = {checked: false, style: null, value: ''},
+        captureEvents = {focus: 1, blur: 1},
+        emitByMethodCall = {focus: 1, blur: 1, reset: 1},
+        eventHandlers = {},
+        whitespace = /[\x20\t\r\n\f]+/;
 
 
     function eventHandler(e) {
@@ -81,39 +88,8 @@ var $B = (function(document, undefined) {
     }
 
 
-    function modifyClass(self, val, addOrRemove, force) {
-        var obj1 = classToObject(self.attr('class')),
-            obj2 = classToObject(val),
-            cls;
-
-        if (force !== undefined) { force = !!force; }
-
-        for (cls in obj2) {
-            if (addOrRemove === true || force === true) {
-                // Add class or toggle true.
-                obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
-            } else if (addOrRemove === false || force === false) {
-                // Remove class or toggle false.
-                delete obj1[cls];
-            } else {
-                // Toggle class.
-                if (cls in obj1) {
-                    delete obj1[cls];
-                } else {
-                    obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
-                }
-            }
-        }
-
-        self.attr('class', Object.keys(obj1).join(' ') || null);
-
-        return self;
-    }
-
-
-    proto.attr = function(name, val) {
-        var node = this._n,
-            key,
+    function __attr(node, name, val) {
+        var key,
             ret;
 
         if (val === undefined) {
@@ -145,39 +121,97 @@ var $B = (function(document, undefined) {
                     node.setAttribute(name, val);
                 }
             }
-            return this;
         }
+    }
+
+
+    function modifyClass(self, val, addOrRemove, force) {
+        var i,
+            node,
+            obj1,
+            obj2 = classToObject(val),
+            cls;
+
+        if (force !== undefined) { force = !!force; }
+
+        for (i = 0; i < self.length; i++) {
+            node = self[i];
+            obj1 = classToObject(__attr(node, 'class'));
+
+            for (cls in obj2) {
+                if (addOrRemove === true || force === true) {
+                    // Add class or toggle true.
+                    obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
+                } else if (addOrRemove === false || force === false) {
+                    // Remove class or toggle false.
+                    delete obj1[cls];
+                } else {
+                    // Toggle class.
+                    if (cls in obj1) {
+                        delete obj1[cls];
+                    } else {
+                        obj1[cls] = 1; // `1` is shorter than `true` and we need just keys.
+                    }
+                }
+            }
+
+            __attr(node, 'class', Object.keys(obj1).join(' ') || null);
+        }
+
+        return self;
+    }
+
+
+    proto.attr = function(name, val) {
+        var self = this,
+            i,
+            ret;
+
+        for (i = 0; i < self.length; i++) {
+            ret = __attr(self[i], name, val);
+            if (val === undefined) { return ret; }
+        }
+
+        return self;
     };
 
 
     proto.emit = function(event, detail) {
-        var node = this._n,
+        var self = this,
+            i,
+            node,
             e;
 
-        if ((event in emitByMethodCall) && node[event]) {
-            node[event]();
-        } else {
-            // TODO: It would probably be needed to distinguish event types.
-            //       For now we're not trying to follow standards much.
-            e = document.createEvent('HTMLEvents');
-            e.initEvent(event, true, false);
-            if (detail) { e.detail = detail; }
-            node.dispatchEvent(e);
+        for (i = 0; i < self.length; i++) {
+            node = self[i];
+
+            if ((event in emitByMethodCall) && node[event]) {
+                node[event]();
+            } else {
+                // TODO: It would probably be needed to distinguish event types.
+                //       For now we're not trying to follow standards much.
+                e = document.createEvent('HTMLEvents');
+                e.initEvent(event, true, false);
+                if (detail) {
+                    e.detail = detail;
+                }
+                node.dispatchEvent(e);
+            }
         }
 
-        return this;
+        return self;
     };
 
 
     proto.on = function(event, handler) {
-        var i,
-            $b,
+        var $b,
             h,
             self = this,
-            node = self._n;
+            i,
+            node;
 
         if (event) {
-            event = (event || '').split(whitespace);
+            event = event.split(whitespace);
 
             if (event.length === 1) {
                 event += '';
@@ -187,15 +221,19 @@ var $B = (function(document, undefined) {
                     eventHandlers[event] = true;
                 }
 
-                if (!(($b = node.$b))) {
-                    $b = node.$b = {};
-                }
+                for (i = 0; i < self.length; i++) {
+                    node = self[i];
 
-                if (!((h = $b[event]))) {
-                    h = $b[event] = [];
-                }
+                    if (!(($b = node.$b))) {
+                        $b = node.$b = {};
+                    }
 
-                h.push(handler);
+                    if (!((h = $b[event]))) {
+                        h = $b[event] = [];
+                    }
+
+                    h.push(handler);
+                }
             } else {
                 for (i = 0; i < event.length; i++) {
                     self.on(event[i], handler);
@@ -210,33 +248,36 @@ var $B = (function(document, undefined) {
     proto.off = function(event, handler) {
         var i,
             self = this,
-            node = self._n,
-            $b = node.$b,
+            $b,
             handlers;
 
-        if (event && $b) {
-            event = (event || '').split(whitespace);
+        for (i = 0; i < self.length; i++) {
+            $b = self[i].$b;
 
-            if (event.length === 1) {
-                event += '';
+            if (event && $b) {
+                event = event.split(whitespace);
 
-                if (((handlers = $b[event])) && handler) {
-                    i = 0;
-                    while (i < handlers.length) {
-                        if (handlers[i] === handler) {
-                            handlers.splice(i, 1);
-                        } else {
-                            i++;
+                if (event.length === 1) {
+                    event += '';
+
+                    if (((handlers = $b[event])) && handler) {
+                        i = 0;
+                        while (i < handlers.length) {
+                            if (handlers[i] === handler) {
+                                handlers.splice(i, 1);
+                            } else {
+                                i++;
+                            }
                         }
                     }
-                }
 
-                if (handlers && (!handlers.length || !handler)) {
-                    delete $b[event];
-                }
-            } else {
-                for (i = 0; i < event.length; i++) {
-                    self.off(event[i], handler);
+                    if (handlers && (!handlers.length || !handler)) {
+                        delete $b[event];
+                    }
+                } else {
+                    for (i = 0; i < event.length; i++) {
+                        self.off(event[i], handler);
+                    }
                 }
             }
         }
@@ -246,14 +287,21 @@ var $B = (function(document, undefined) {
 
 
     proto.text = function(val) {
-        var node = this._n;
+        var self = this,
+            i,
+            node;
 
-        if (val === undefined) {
-            return node.textContent;
-        } else {
-            node.textContent = val;
-            return this;
+        for (i = 0; i < self.length; i++) {
+            node = self[i];
+
+            if (val === undefined) {
+                return node.textContent;
+            } else {
+                node.textContent = val;
+            }
         }
+
+        return self;
     };
 
 
@@ -277,7 +325,7 @@ var $B = (function(document, undefined) {
     };
 
 
-    return function(node) {
-        return new API(node);
+    return function(node, context) {
+        return new API(node, context);
     };
 })(document);
