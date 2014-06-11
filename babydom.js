@@ -301,7 +301,9 @@ var $B = (function(document, undefined) {
             }
         }
 
-        return self;
+        if (val !== undefined) {
+            return self;
+        }
     };
 
 

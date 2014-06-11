@@ -100,15 +100,19 @@ test('babydom attr test', function() {
 
 
 test('babydom text test', function() {
-    var container = document.getElementById('container');
+    var container = document.getElementById('container'),
+        tmp;
 
-    $B(container).text('Piu').text('Hello <world> &nbsp;!');
+    tmp = $B(container);
+    deepEqual(tmp.text('Piu').text('Hello <world> &nbsp;!'), tmp);
     deepEqual($B(container).text(), 'Hello <world> &nbsp;!');
 
     container.innerHTML = 'Hello <world>beautiful</world> &nbsp;!';
     deepEqual($B(container).text(), 'Hello beautiful  !');
 
     container.innerHTML = '';
+
+    ok($B('.ololo-piu-piu').text() === undefined, 'Text for empty set should be undefined');
 });
 
 
