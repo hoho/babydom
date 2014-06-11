@@ -96,6 +96,8 @@ test('babydom attr test', function() {
     styleEqual($B(input).attr('style'), null);
 
     container.innerHTML = '';
+
+    ok($B('.piu-piu-piu').attr('name') === undefined, 'Value for empty set should be undefined');
 });
 
 

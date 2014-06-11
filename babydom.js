@@ -172,7 +172,9 @@ var $B = (function(document, undefined) {
             if (val === undefined) { return ret; }
         }
 
-        return self;
+        if (val !== undefined) {
+            return self;
+        }
     };
 
 
