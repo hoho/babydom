@@ -274,3 +274,134 @@ test('babydom selector test', function() {
 
     ret.attr('test', 'ololo');
 });
+
+
+test('babydom form serialization test', function() {
+    var container = document.getElementById('container');
+
+    container.innerHTML =
+        '<form>' +
+            '<input type="text" value="ololo">' + // No name.
+
+            '<input type="file" name="f0">' +
+
+            '<input type="text" name="f1" value="v1">' +
+            '<input type="hidden" name="f2" value="v2">' +
+            '<input type="password" name="f3" value="v3">' +
+            '<input type="email" name="f4" value="v4">' +
+
+            '<input type="radio" name="f5" value="v5-1">' +
+            '<input type="radio" name="f5" value="v5-2" checked="checked">' +
+            '<input type="radio" name="f5" value="v5-3">' +
+
+            '<input type="checkbox" name="f6" value="v6">' +
+            '<input type="checkbox" name="f7" value="v7" checked="checked">' +
+
+            '<input type="checkbox" name="f8" value="v8-1" checked="checked">' +
+            '<input type="checkbox" name="f8" value="v8-2">' +
+            '<input type="checkbox" name="f8" value="v8-3" checked="checked">' +
+
+            '<select name="f9">' +
+                '<option value="v9-1">9-1</option>' +
+                '<option value="v9-2" selected="selected">9-2</option>' +
+                '<option value="v9-3">9-3</option>' +
+            '</select>' +
+
+            '<select name="f10" multiple="multiple">' +
+                '<option value="v10-1" selected="selected">10-1</option>' +
+                '<option value="v10-2">10-2</option>' +
+                '<option value="v10-3" selected="selected">10-3</option>' +
+            '</select>' +
+
+            '<textarea name="f11">Hello world</textarea>' +
+
+            '<input type="submit" name="f12">' +
+            '<input type="reset" name="f13">' +
+            '<input type="button" name="f14">' +
+            '<button type="submit" name="f15">' +
+        '</form>';
+
+    deepEqual($B('form', container).serialize(), [
+        {name: 'f1', value: 'v1'},
+        {name: 'f2', value: 'v2'},
+        {name: 'f3', value: 'v3'},
+        {name: 'f4', value: 'v4'},
+        {name: 'f5', value: 'v5-2'},
+        {name: 'f7', value: 'v7'},
+        {name: 'f8', value: 'v8-1'},
+        {name: 'f8', value: 'v8-3'},
+        {name: 'f9', value: 'v9-2'},
+        {name: 'f10', value: 'v10-1'},
+        {name: 'f10', value: 'v10-3'},
+        {name: 'f11', value: 'Hello world'}
+    ]);
+
+    deepEqual($B('form', container).serialize('map'), {
+        f1: 'v1',
+        f2: 'v2',
+        f3: 'v3',
+        f4: 'v4',
+        f5: 'v5-2',
+        f7: 'v7',
+        f8: 'v8-1',
+        f9: 'v9-2',
+        f10: 'v10-1',
+        f11: 'Hello world'
+    });
+
+    deepEqual(
+        $B('form', container).serialize('qs'),
+        'f1=v1&f2=v2&f3=v3&f4=v4&f5=v5-2&f7=v7&f8=v8-1&f8=v8-3&f9=v9-2&f10=v10-1&f10=v10-3&f11=Hello%20world'
+    );
+
+    container.innerHTML = container.innerHTML + '<div>' + container.innerHTML + '</div>';
+
+    deepEqual($B('form', container).serialize(), [
+        {name: 'f1', value: 'v1'},
+        {name: 'f2', value: 'v2'},
+        {name: 'f3', value: 'v3'},
+        {name: 'f4', value: 'v4'},
+        {name: 'f5', value: 'v5-2'},
+        {name: 'f7', value: 'v7'},
+        {name: 'f8', value: 'v8-1'},
+        {name: 'f8', value: 'v8-3'},
+        {name: 'f9', value: 'v9-2'},
+        {name: 'f10', value: 'v10-1'},
+        {name: 'f10', value: 'v10-3'},
+        {name: 'f11', value: 'Hello world'},
+
+        {name: 'f1', value: 'v1'},
+        {name: 'f2', value: 'v2'},
+        {name: 'f3', value: 'v3'},
+        {name: 'f4', value: 'v4'},
+        {name: 'f5', value: 'v5-2'},
+        {name: 'f7', value: 'v7'},
+        {name: 'f8', value: 'v8-1'},
+        {name: 'f8', value: 'v8-3'},
+        {name: 'f9', value: 'v9-2'},
+        {name: 'f10', value: 'v10-1'},
+        {name: 'f10', value: 'v10-3'},
+        {name: 'f11', value: 'Hello world'}
+    ]);
+
+    deepEqual($B('form', container).serialize('map'), {
+        f1: 'v1',
+        f2: 'v2',
+        f3: 'v3',
+        f4: 'v4',
+        f5: 'v5-2',
+        f7: 'v7',
+        f8: 'v8-1',
+        f9: 'v9-2',
+        f10: 'v10-1',
+        f11: 'Hello world'
+    });
+
+    deepEqual(
+        $B('form', container).serialize('qs'),
+        'f1=v1&f2=v2&f3=v3&f4=v4&f5=v5-2&f7=v7&f8=v8-1&f8=v8-3&f9=v9-2&f10=v10-1&f10=v10-3&f11=Hello%20world&' +
+        'f1=v1&f2=v2&f3=v3&f4=v4&f5=v5-2&f7=v7&f8=v8-1&f8=v8-3&f9=v9-2&f10=v10-1&f10=v10-3&f11=Hello%20world'
+    );
+
+    container.innerHTML = '';
+});

@@ -1,8 +1,8 @@
 /*!
- * babydom v0.0.2, https://github.com/hoho/babydom
+ * babydom v0.0.3, https://github.com/hoho/babydom
  * (c) 2014 Marat Abdullin, MIT license
  */
-var $B = (function(document, undefined) {
+var $B = (function(document, encodeURIComponent, undefined) {
     'use strict';
 
     function select(selector, context) {
@@ -18,9 +18,12 @@ var $B = (function(document, undefined) {
     }
 
 
-    function API(nodeOrSelector, context) {
-        var nodes = nodeOrSelector instanceof Node ? [nodeOrSelector] : select(nodeOrSelector, context),
-            i;
+    function BabyDOM(nodeOrSelector, context) {
+        var i,
+            nodes = nodeOrSelector instanceof Node ?
+                [nodeOrSelector]
+                :
+                (nodeOrSelector ? select(nodeOrSelector, context) : []);
 
         for (i = 0; i < nodes.length; i++) {
             this[i] = nodes[i];
@@ -29,7 +32,7 @@ var $B = (function(document, undefined) {
         this.length = nodes.length;
     }
 
-    var proto = API.prototype,
+    var proto = BabyDOM.prototype,
         properties = {checked: false, style: null, value: ''},
         captureEvents = {focus: 1, blur: 1},
         emitByMethodCall = {focus: 1, blur: 1, reset: 1},
@@ -162,7 +165,7 @@ var $B = (function(document, undefined) {
     }
 
 
-    proto.attr = function(name, val) {
+    proto.attr = function attr(name, val) {
         var self = this,
             i,
             ret;
@@ -178,7 +181,7 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.emit = function(event, detail) {
+    proto.emit = function emit(event, detail) {
         var self = this,
             i,
             node,
@@ -205,7 +208,7 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.on = function(event, handler) {
+    proto.on = function on(event, handler) {
         var $b,
             h,
             self = this,
@@ -288,7 +291,7 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.text = function(val) {
+    proto.text = function text(val) {
         var self = this,
             i,
             node;
@@ -309,27 +312,100 @@ var $B = (function(document, undefined) {
     };
 
 
-    proto.addClass = function(val) {
+    proto.addClass = function addClass(val) {
         return modifyClass(this, val, true);
     };
 
 
-    proto.removeClass = function(val) {
+    proto.removeClass = function removeClass(val) {
         return modifyClass(this, val, false);
     };
 
 
-    proto.toggleClass = function(val, force) {
+    proto.toggleClass = function toggleClass(val, force) {
         return modifyClass(this, val, undefined, force);
     };
 
 
-    proto.hasClass = function(val) {
+    proto.hasClass = function hasClass(val) {
         return val in classToObject(this.attr('class'));
     };
 
 
-    return function(node, context) {
-        return new API(node, context);
+    proto.serialize = function serialize(type) {
+        var self = this,
+            i,
+            j,
+            k,
+            node,
+            elems,
+            elem,
+            name,
+            opts,
+            ret = [];
+
+        for (i = 0; i < self.length; i++) {
+            node = self[i];
+
+            if (node instanceof HTMLFormElement) {
+                elems = node.elements;
+
+                for (j = 0; j < elems.length; j++) {
+                    elem = elems[j];
+
+                    if ((name = elem.name)) {
+                        switch (elem.type) {
+                            case 'submit':
+                            case 'reset':
+                            case 'button':
+                            case 'file':
+                                break;
+
+                            case 'checkbox':
+                            case 'radio':
+                                if (elem.checked) {
+                                    ret.push({name: name, value: elem.value});
+                                }
+                                break;
+
+                            case 'select-multiple':
+                                opts = elem.options;
+                                for (k = 0; k < opts.length; k++) {
+                                    if (opts[k].selected) {
+                                        ret.push({name: name, value: opts[k].value});
+                                    }
+                                }
+                                break;
+
+                            default:
+                                ret.push({name: name, value: elem.value});
+                        }
+                    }
+                }
+            }
+        }
+
+        if (type === 'map') {
+            opts = {};
+            for (i = ret.length; i--;) {
+                opts[ret[i].name] = ret[i].value;
+            }
+            ret = opts;
+        }
+
+        if (type === 'qs') {
+            opts = [];
+            for (i = 0; i < ret.length; i++) {
+                opts.push(encodeURIComponent(ret[i].name) + '=' + encodeURIComponent(ret[i].value));
+            }
+            ret = opts.join('&');
+        }
+
+        return ret;
     };
-})(document);
+
+
+    return function(node, context) {
+        return new BabyDOM(node, context);
+    };
+})(document, encodeURIComponent);
