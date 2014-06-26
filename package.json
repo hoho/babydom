@@ -1,6 +1,6 @@
 {
     "name": "babydom",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Little DOM manipulations",
     "main": "babydom.js",
     "directories": {

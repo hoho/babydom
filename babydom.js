@@ -32,6 +32,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
         this.length = nodes.length;
     }
 
+
     var proto = BabyDOM.prototype,
         properties = {checked: false, style: null, value: ''},
         captureEvents = {focus: 1, blur: 1},
