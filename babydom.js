@@ -1,5 +1,5 @@
 /*!
- * babydom v0.0.3, https://github.com/hoho/babydom
+ * babydom v0.0.4, https://github.com/hoho/babydom
  * (c) 2014 Marat Abdullin, MIT license
  */
 var $B = (function(document, encodeURIComponent, undefined) {
@@ -38,7 +38,9 @@ var $B = (function(document, encodeURIComponent, undefined) {
         captureEvents = {focus: 1, blur: 1},
         emitByMethodCall = {focus: 1, blur: 1, reset: 1},
         eventHandlers = {},
-        whitespace = /[\x20\t\r\n\f]+/;
+        whitespace = /[\x20\t\r\n\f]+/,
+        classStr = 'class',
+        styleStr = 'style';
 
 
     function eventHandler(e) {
@@ -98,12 +100,12 @@ var $B = (function(document, encodeURIComponent, undefined) {
 
         if (val === undefined) {
             return name in properties ?
-                (name === 'style' ? node.style.cssText : node[name])
+                (name === styleStr ? node.style.cssText : node[name])
                 :
                 node.getAttribute(name);
         } else {
             if (name in properties) {
-                if (name === 'style') {
+                if (name === styleStr) {
                     if (typeof val === 'object') {
                         ret = [];
                         for (key in val) {
@@ -140,7 +142,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
 
         for (i = 0; i < self.length; i++) {
             node = self[i];
-            obj1 = classToObject(__attr(node, 'class'));
+            obj1 = classToObject(__attr(node, classStr));
 
             for (cls in obj2) {
                 if (addOrRemove === true || force === true) {
@@ -159,7 +161,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
                 }
             }
 
-            __attr(node, 'class', Object.keys(obj1).join(' ') || null);
+            __attr(node, classStr, Object.keys(obj1).join(' ') || null);
         }
 
         return self;
@@ -329,7 +331,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
 
 
     proto.hasClass = function hasClass(val) {
-        return val in classToObject(this.attr('class'));
+        return val in classToObject(this.attr(classStr));
     };
 
 
