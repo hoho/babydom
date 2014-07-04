@@ -34,7 +34,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
 
 
     var proto = BabyDOM.prototype,
-        properties = {checked: false, style: null, value: ''},
+        properties = {disabled: false, checked: false, style: null, value: ''},
         captureEvents = {focus: 1, blur: 1},
         emitByMethodCall = {focus: 1, blur: 1, reset: 1},
         eventHandlers = {},
