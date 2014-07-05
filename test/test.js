@@ -42,6 +42,7 @@ test('babydom attr test', function() {
         .attr('test1', 'val1')
         .attr('test2', 'val2')
         .attr('checked', true)
+        .attr('disabled', true)
         .attr('value', 'ololo')
         .attr('class', 'a b c')
         .attr('style', 'color: red; display: block;');
@@ -52,6 +53,7 @@ test('babydom attr test', function() {
             $B(input).attr('test1'),
             $B(input).attr('test2'),
             $B(input).attr('checked'),
+            $B(input).attr('disabled'),
             $B(input).attr('value'),
             $B(input).attr('class')
         ],
@@ -59,6 +61,7 @@ test('babydom attr test', function() {
             'test-i',
             'val1',
             'val2',
+            true,
             true,
             'ololo',
             'a b c'
@@ -70,6 +73,7 @@ test('babydom attr test', function() {
         .attr('name', null)
         .attr('test1', null)
         .attr('checked', null)
+        .attr('disabled', false)
         .attr('value', null)
         .attr('style', 'color: green;');
 
@@ -78,11 +82,13 @@ test('babydom attr test', function() {
             $B(input).attr('name'),
             $B(input).attr('test1'),
             $B(input).attr('checked'),
+            $B(input).attr('disabled'),
             $B(input).attr('value')
         ],
         [
             null,
             null,
+            false,
             false,
             ''
         ]

@@ -1,6 +1,6 @@
 {
     "name": "babydom",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Little DOM manipulations",
     "main": "babydom.js",
     "directories": {
@@ -24,11 +24,11 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "gulp": "~3.8.0",
-        "gulp-eslint": "~0.1.6",
+        "gulp": "~3.8.5",
+        "gulp-eslint": "~0.1.7",
         "gulp-qunit": "~0.3.3",
         "gulp-rename": "~1.2.0",
-        "gulp-uglify": "~0.2.1",
-        "qunitjs": "~1.12.0"
+        "gulp-uglify": "~0.3.1",
+        "qunitjs": "~1.14.0"
     }
 }
