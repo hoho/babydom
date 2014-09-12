@@ -127,24 +127,26 @@ test('babydom text test', function() {
 test('babydom events test', function() {
     var container = document.getElementById('container'),
         ret = [],
-        clickHandler = function(e) { ret.push(e.type + ' ' + tag(this) + ' ' + tag(e.target)); },
-        customHandler = function(e) { ret.push(e.type + ' ' + tag(this) + ' ' + tag(e.target) + ' ' + JSON.stringify(e.detail)); };
+        id = 1,
+        off,
+        clickHandler = function() { var hid = id++; return function(e) { ret.push(hid + ' ' + e.type + ' ' + tag(this) + ' ' + tag(e.target)); }; },
+        customHandler = function() { var hid = id++; return function(e) { ret.push(hid + ' ' + e.type + ' ' + tag(this) + ' ' + tag(e.target) + ' ' + JSON.stringify(e.detail)); }; };
 
     $B(container)
-        .on('click', clickHandler)
-        .on('my-event', customHandler)
+        .on('click', (off = clickHandler()))
+        .on('my-event', customHandler())
         .emit('click')
         .emit('my-event', {ololo: 'piu', yep: 123})
         .emit('click')
-        .off('click', clickHandler)
+        .off('click', off)
         .emit('click');
 
     deepEqual(
         ret,
         [
-            'click div div',
-            'my-event div div {"ololo":"piu","yep":123}',
-            'click div div'
+            '1 click div div',
+            '2 my-event div div {"ololo":"piu","yep":123}',
+            '1 click div div'
         ]
     );
 
@@ -156,10 +158,10 @@ test('babydom events test', function() {
 
     ret = [];
     $B(p)
-        .on('click', clickHandler)
-        .on('my-event', customHandler);
-    $B(em).on('click', clickHandler);
-    $B(a).on('click', clickHandler);
+        .on('click', clickHandler())
+        .on('my-event', customHandler());
+    $B(em).on('click', clickHandler());
+    $B(a).on('click', clickHandler());
 
     $B(em).emit('click');
     $B(a).emit('click');
@@ -169,26 +171,38 @@ test('babydom events test', function() {
     deepEqual(
         ret,
         [
-            'click em em',
-            'click p em',
-            'click a a',
-            'click p a',
-            'click p p',
-            'my-event p em 100500',
-            'my-event div em 100500'
+            '5 click em em',
+            '3 click p em',
+            '6 click a a',
+            '3 click p a',
+            '3 click p p',
+            '4 my-event p em 100500',
+            '2 my-event div em 100500'
         ]
     );
 
     ret = [];
+    var stop = true,
+        stop2 = true;
     $B(em).on('click', function(e) {
-        ret.push('stopPropagation ' + e.type + ' ' + tag(this) + ' ' + tag(e.target));
-        e.stopPropagation();
+        ret.push((stop ? '' : 'no ') + 'stopPropagation ' + e.type + ' ' + tag(this) + ' ' + tag(e.target));
+        if (stop) {
+            e.stopPropagation();
+            stop = false;
+        }
     });
     $B(a).on('click', function(e) {
-        ret.push('stopImmediatePropagation ' + e.type + ' ' + tag(this) + ' ' + tag(e.target));
-        e.stopImmediatePropagation();
+        ret.push((stop2 ? '' : 'no ') + 'stopImmediatePropagation ' + e.type + ' ' + tag(this) + ' ' + tag(e.target));
+        if (stop2) {
+            e.stopImmediatePropagation();
+            stop2 = false;
+        }
     });
-    $B(a).on('event1 event2 event3', customHandler);
+    $B(a).on('event1 event2 event3', customHandler());
+
+    $B(em).on('click', clickHandler());
+    $B(a).on('click', clickHandler());
+
     $B(em).emit('click');
     $B(a)
         .emit('click')
@@ -196,15 +210,29 @@ test('babydom events test', function() {
         .emit('event3', 333)
         .emit('event2', 222);
 
+    $B(em).emit('click');
+    $B(a).emit('click');
+
     deepEqual(
         ret,
         [
+            '5 click em em',
             'stopPropagation click em em',
-            'click em em',
+            '8 click em em',
+            '6 click a a',
             'stopImmediatePropagation click a a',
-            'event1 a a 111',
-            'event3 a a 333',
-            'event2 a a 222'
+            '7 event1 a a 111',
+            '7 event3 a a 333',
+            '7 event2 a a 222',
+
+            '5 click em em',
+            'no stopPropagation click em em',
+            '8 click em em',
+            '3 click p em',
+            '6 click a a',
+            'no stopImmediatePropagation click a a',
+            '9 click a a',
+            '3 click p a'
         ]
     );
 

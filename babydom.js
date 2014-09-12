@@ -66,7 +66,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
 
         while (node) {
             if ((($b = node.$b)) && ((h = $b[e.type]))) {
-                for (i = h.length; i--;) {
+                for (i = 0; i < h.length; i++) {
                     h[i].call(node, e);
                     if (next & 2) { return; }
                 }
