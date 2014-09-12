@@ -24,6 +24,7 @@ gulp.task('jshint', function() {
         .pipe(eslint.format());
 });
 
+
 gulp.task('uglify', function() {
     return gulp.src(['babydom.js'])
         .pipe(uglify({preserveComments: 'some'}))
@@ -31,10 +32,21 @@ gulp.task('uglify', function() {
         .pipe(gulp.dest('.'));
 });
 
+
 gulp.task('qunit', ['uglify'], function() {
     return gulp.src('./test/*.html')
         .pipe(qunit());
 });
 
 
-gulp.task('default', ['jshint', 'uglify', 'qunit']);
+gulp.task('assert-version', function(err) {
+    var assertVersion = require('assert-version');
+
+    err(assertVersion({
+        'babydom.js': '',
+        'bower.json': ''
+    }));
+});
+
+
+gulp.task('default', ['jshint', 'assert-version', 'uglify', 'qunit']);

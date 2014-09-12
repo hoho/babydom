@@ -1,5 +1,5 @@
 /*!
- * babydom v0.0.4, https://github.com/hoho/babydom
+ * babydom v0.0.5, https://github.com/hoho/babydom
  * (c) 2014 Marat Abdullin, MIT license
  */
 var $B = (function(document, encodeURIComponent, undefined) {
