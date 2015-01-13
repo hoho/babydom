@@ -199,7 +199,7 @@ var $B = (function(document, encodeURIComponent, undefined) {
                 // TODO: It would probably be needed to distinguish event types.
                 //       For now we're not trying to follow standards much.
                 e = document.createEvent('HTMLEvents');
-                e.initEvent(event, true, false);
+                e.initEvent(event, true, true);
                 if (detail) {
                     e.detail = detail;
                 }
